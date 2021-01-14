@@ -1,44 +1,85 @@
 const express = require('express');
 
 const User = require('./users-model')
+const Post = require('../posts/posts-model')
 const router = express.Router();
 
-router.post('/', (req, res) => {
-  // do your magic!
-  // this needs a middleware to check that the request body is valid
+const { validateUserId, validateUser, validatePost } = require('../middleware/middleware')
+
+router.post('/', validateUser, (req, res, next) => {
+  User.insert(req.body)
+    .then(user => {
+      res.status(201).json(user);
+    })
+    .catch(error => {
+      next(error)
+    });
 });
 
-router.get('/', (req, res) => {
-  // do your magic!
+router.get('/', (req, res, next) => {
+  User.get(req.query)
+    .then(users => {
+      res.status(200).json(users)
+    })
+  .catch(error => {
+    next(error)
+  })
 });
 
-router.get('/:id', (req, res) => {
-  // do your magic!
-  // this needs a middleware to verify user id
+router.get('/:id', validateUserId, (req, res) => {
+  res.status(200).json(req.user)
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
-  // this needs a middleware to verify user id
+router.delete('/:id', validateUserId, (req, res, next) => {
+  User.remove(req.params.id)
+    .then(() => {
+      res.status(200).json({ message: "the user has been deleted" })
+    })
+    .catch(error => {
+      next(error)
+    })
 });
 
-router.put('/:id', (req, res) => {
-  // do your magic!
+router.put('/:id', validateUserId, validateUser, (req, res, next) => {
+  User.update(req.params.id, req.body)
+    .then(() => {
+      res.status(200).json(req.body)
+    })
+    .catch(error => {
+      next(error)
+    })
+});
+
+router.post('/:id/posts', validateUserId, validatePost, (req, res, next) => {
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+
+  // const postInfo = { text: req.body, id: req.params.id };
+  Post.insert(req.body)
+    .then(post => {
+      res.status(201).json(post)
+    })
+    .catch(error => {
+      next(error)
+    })
 });
 
-router.post('/:id/posts', (req, res) => {
-  // do your magic!
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
+router.get('/:id/posts', validateUserId, (req, res, next) => {
+  User.getUserPosts(req.params.id)
+    .then(posts => {
+      res.status(200).json(posts)
+    })
+    .catch(error => {
+      next(error)
+    })
 });
 
-router.get('/:id/posts', (req, res) => {
-  // do your magic!
-  // this needs a middleware to verify user id
-});
-
-// do not forget to export the router
+router.use((error, req, res) => {
+  res.status(500).json({
+    info: 'something horrible happened inside the user router',
+    message: error.message,
+    stack: error.stack,
+  })
+})
 
 module.exports = router;
