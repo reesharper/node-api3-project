@@ -1,5 +1,6 @@
 const express = require('express');
 
+const Posts = require('./posts-model')
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -22,3 +23,5 @@ router.put('/:id', (req, res) => {
 });
 
 // do not forget to export the router
+
+module.exports = router;
