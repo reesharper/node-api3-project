@@ -51,13 +51,10 @@ router.put('/:id', validateUserId, validateUser, (req, res, next) => {
 });
 
 router.post('/:id/posts', validateUserId, validatePost, (req, res, next) => {
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
-
-  // const postInfo = { text: req.body, id: req.params.id };
-  Post.insert(req.body)
-    .then(post => {
-      res.status(201).json(post)
+  const postInfo = { ...req.body, user_id: req.params.id };
+  Post.insert(postInfo)
+    .then(user => {
+      res.status(201).json(user)
     })
     .catch(error => {
       next(error)
