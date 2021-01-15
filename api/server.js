@@ -10,7 +10,10 @@ server.use('/posts', logger, postsRouter);
 server.use('/user', logger, userRouter);
 
 server.get('/', logger, (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`);
+  res.status(200).json({
+    api: 'UP',
+    environment: process.env.NODE_ENV
+  })
 });
 
 module.exports = server;
